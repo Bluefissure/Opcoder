@@ -6,6 +6,7 @@ using Machina.FFXIV;
 using Lumina.Excel.GeneratedSheets;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace Opcoder
 {
@@ -19,7 +20,8 @@ namespace Opcoder
         public static void Main(string[] args)
         {
             FFXIVNetworkMonitor monitor = new FFXIVNetworkMonitor();
-            lumina = new Lumina.Lumina("C:\\Games\\SDO\\FFXIV\\game\\sqpack");
+            var GameDir = Path.Combine(Process.GetProcessById((int)monitor.ProcessID).MainModule.FileName, "..\\sqpack");
+            lumina = new Lumina.Lumina(GameDir);
             monitor.MessageReceived = (string connection, long epoch, byte[] message) => MessageReceived(connection, epoch, message);
             monitor.MessageSent = (string connection, long epoch, byte[] message) => MessageSent(connection, epoch, message);
             monitor.Start();
