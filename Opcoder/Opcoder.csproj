@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lumina" Version="2.1.1" />
+    <PackageReference Include="Lumina.Generated" Version="5.25.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Machina">
+      <HintPath>..\..\..\..\Git\machina\Machina.FFXIV\bin\Debug\Machina.dll</HintPath>
+    </Reference>
+    <Reference Include="Machina.FFXIV">
+      <HintPath>..\..\..\..\Git\machina\Machina.FFXIV\bin\Debug\Machina.FFXIV.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
