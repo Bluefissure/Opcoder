@@ -83,6 +83,7 @@ namespace Opcoder
                 {
                     var furnitureId = BitConverter.ToUInt16(posArr, i);
                     var item = lumina.GetExcelSheet<HousingFurniture>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)(furnitureId + 196608)).Item.Value;
+                    if (item.RowId == 0) continue;
                     var rotate = BitConverter.ToSingle(posArr, i + 8);
                     var x = BitConverter.ToSingle(posArr, i + 12);
                     var y = BitConverter.ToSingle(posArr, i + 16);
@@ -90,7 +91,7 @@ namespace Opcoder
                     var posSig = BitConverter.ToString(posArr[(i + 12)..(i + 24)]).Replace("-", " ") + " ?? ?? ?? ?? " +
                         BitConverter.ToString(posArr[(i+8)..(i + 12)]).Replace("-", " ");
                     var posStr = $"({x}, {y}, {z}, {rotate})";
-                    Console.WriteLine($"#{idxOff + idx} {item.Name} ({x}, {y}, {z}, {rotate})\tsig: {posSig}");
+                    Console.WriteLine($"#{idxOff + idx} Item#{item.RowId}:{item.Name} ({x}, {y}, {z}, {rotate})\nsig: {posSig}");
                     PosDict.Add(idxOff + idx, posStr);
                 }
                 Console.WriteLine($"PosDict loaded {PosDict.Count} items.");
