@@ -20,7 +20,7 @@ namespace Opcoder
         public static void Main(string[] args)
         {
             FFXIVNetworkMonitor monitor = new FFXIVNetworkMonitor();
-            var GameDir = Path.Combine(Process.GetProcessById((int)monitor.ProcessID).MainModule.FileName, "..\\sqpack");
+            var GameDir = Path.Combine(Process.GetProcessesByName("ffxiv_dx11")[0].MainModule.FileName, "..\\sqpack");
             lumina = new Lumina.Lumina(GameDir);
             monitor.MessageReceived = (string connection, long epoch, byte[] message) => MessageReceived(connection, epoch, message);
             monitor.MessageSent = (string connection, long epoch, byte[] message) => MessageSent(connection, epoch, message);
@@ -64,8 +64,10 @@ namespace Opcoder
                     PosDict.Clear();
                     return;
                 }
+                /*
                 Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
+                */
                 int idxOff = 0;
                 if (DateTime.Now > lastPosPackageTime.AddSeconds(5))
                 {
@@ -77,16 +79,18 @@ namespace Opcoder
                     idxOff = PosDict.Count;
                 }
                 byte [] posArr = message[32..];
-                for (int i = 20, idx = 0;i<posArr.Length && i + 16 < posArr.Length; i += 24, idx += 1)
+                for (int i = 12, idx = 0;i<posArr.Length && i + 24 < posArr.Length; i += 24, idx += 1)
                 {
-                    var rotate = BitConverter.ToSingle(posArr, i);
-                    var x = BitConverter.ToSingle(posArr, i + 4);
-                    var y = BitConverter.ToSingle(posArr, i + 8);
-                    var z = BitConverter.ToSingle(posArr, i + 12);
-                    var posSig = BitConverter.ToString(posArr[(i + 4)..(i + 16)]).Replace("-", " ") + " ?? ?? ?? ?? " +
-                        BitConverter.ToString(posArr[(i)..(i + 4)]).Replace("-", " ");
+                    var furnitureId = BitConverter.ToUInt16(posArr, i);
+                    var item = lumina.GetExcelSheet<HousingFurniture>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)(furnitureId + 196608)).Item.Value;
+                    var rotate = BitConverter.ToSingle(posArr, i + 8);
+                    var x = BitConverter.ToSingle(posArr, i + 12);
+                    var y = BitConverter.ToSingle(posArr, i + 16);
+                    var z = BitConverter.ToSingle(posArr, i + 20);
+                    var posSig = BitConverter.ToString(posArr[(i + 12)..(i + 24)]).Replace("-", " ") + " ?? ?? ?? ?? " +
+                        BitConverter.ToString(posArr[(i+8)..(i + 12)]).Replace("-", " ");
                     var posStr = $"({x}, {y}, {z}, {rotate})";
-                    Console.WriteLine($"#{idxOff + idx} ({x}, {y}, {z}, {rotate})\tsig: {posSig}");
+                    Console.WriteLine($"#{idxOff + idx} {item.Name} ({x}, {y}, {z}, {rotate})\tsig: {posSig}");
                     PosDict.Add(idxOff + idx, posStr);
                 }
                 Console.WriteLine($"PosDict loaded {PosDict.Count} items.");
