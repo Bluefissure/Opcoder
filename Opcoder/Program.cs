@@ -34,6 +34,7 @@ namespace Opcoder
 
             if (BitConverter.ToUInt16(message, 18) == 0x3A1)
             {
+                return;
                 //Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 //Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
                 byte[] posArr = message[32..];
@@ -57,7 +58,8 @@ namespace Opcoder
                 Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
             }*/
-            if (BitConverter.ToUInt16(message, 18) == 0x353)
+            //Console.WriteLine($"Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 0x1FA)
             {
                 if (BitConverter.ToString(message[32..]).Replace("-", " ").StartsWith("FF FF FF FF FF FF FF FF"))
                 {
@@ -68,21 +70,16 @@ namespace Opcoder
                 Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
                 */
-                int idxOff = 0;
                 if (DateTime.Now > lastPosPackageTime.AddSeconds(5))
                 {
                     PosDict.Clear();
                     lastPosPackageTime = DateTime.Now;
                 }
-                else
-                {
-                    idxOff = PosDict.Count;
-                }
-                byte [] posArr = message[32..];
-                for (int i = 12, idx = 0;i<posArr.Length && i + 24 < posArr.Length; i += 24, idx += 1)
+                byte[] posArr = message[32..];
+                for (int i = 12; i < posArr.Length && i + 24 < posArr.Length; i += 24)
                 {
                     var furnitureId = BitConverter.ToUInt16(posArr, i);
-                    var item = lumina.GetExcelSheet<HousingFurniture>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)(furnitureId + 196608)).Item.Value;
+                    var item = lumina.GetExcelSheet<HousingFurniture>(Lumina.Data.Language.English).GetRow((uint)(furnitureId + 196608)).Item.Value;
                     if (item.RowId == 0) continue;
                     var rotate = BitConverter.ToSingle(posArr, i + 8);
                     var x = BitConverter.ToSingle(posArr, i + 12);
@@ -91,14 +88,17 @@ namespace Opcoder
                     var posSig = BitConverter.ToString(posArr[(i + 12)..(i + 24)]).Replace("-", " ") + " ?? ?? ?? ?? " +
                         BitConverter.ToString(posArr[(i+8)..(i + 12)]).Replace("-", " ");
                     var posStr = $"({x}, {y}, {z}, {rotate})";
-                    Console.WriteLine($"#{idxOff + idx} Item#{item.RowId}:{item.Name} ({x}, {y}, {z}, {rotate})\nsig: {posSig}");
-                    PosDict.Add(idxOff + idx, posStr);
+                    Console.WriteLine($"#{PosDict.Count} Item#{item.RowId}:{item.Name} ({x}, {y}, {z}, {rotate})");
+                    //Console.WriteLine($"sig: {posSig}");
+                    if (!PosDict.ContainsKey(PosDict.Count))
+                        PosDict.Add(PosDict.Count, posStr);
                 }
                 Console.WriteLine($"PosDict loaded {PosDict.Count} items.");
 
             }
             if (message[18] == 0x69)
             {
+                return;
                 byte[] itemArr = message[32..];
                 if (DateTime.Now > lastItemPackageTime.AddSeconds(5))
                 {

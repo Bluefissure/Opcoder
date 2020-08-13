@@ -7,16 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lumina" Version="2.1.1" />
-    <PackageReference Include="Lumina.Generated" Version="5.25.1" />
+    <PackageReference Include="Lumina" Version="2.2.0" />
+    <PackageReference Include="Lumina.Generated" Version="5.30.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Machina">
-      <HintPath>..\..\..\..\Git\machina\Machina.FFXIV\bin\Debug\Machina.dll</HintPath>
+      <HintPath>..\..\..\..\..\ACTv3\Plugins\Machina.dll</HintPath>
     </Reference>
     <Reference Include="Machina.FFXIV">
-      <HintPath>..\..\..\..\Git\machina\Machina.FFXIV\bin\Debug\Machina.FFXIV.dll</HintPath>
+      <HintPath>..\..\..\..\..\ACTv3\Plugins\Machina.FFXIV.dll</HintPath>
     </Reference>
   </ItemGroup>
 
