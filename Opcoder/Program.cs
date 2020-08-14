@@ -31,10 +31,9 @@ namespace Opcoder
         }
         private static void MessageSent(string connection, long epoch, byte[] message)
         {
-
-            if (BitConverter.ToUInt16(message, 18) == 0x3A1)
+            //Console.WriteLine($"Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 0x197)
             {
-                return;
                 //Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 //Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
                 byte[] posArr = message[32..];
