@@ -31,8 +31,8 @@ namespace Opcoder
         }
         private static void MessageSent(string connection, long epoch, byte[] message)
         {
-            //Console.WriteLine($"Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
-            if (BitConverter.ToUInt16(message, 18) == 0x197)
+            Console.WriteLine($"MessageSent Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 0x35E)
             {
                 //Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 //Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
@@ -57,8 +57,8 @@ namespace Opcoder
                 Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
             }*/
-            //Console.WriteLine($"Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
-            if (BitConverter.ToUInt16(message, 18) == 0x1FA)
+            Console.WriteLine($"MessageReceived Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 0x100)
             {
                 if (BitConverter.ToString(message[32..]).Replace("-", " ").StartsWith("FF FF FF FF FF FF FF FF"))
                 {
