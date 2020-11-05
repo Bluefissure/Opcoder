@@ -13,6 +13,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Collections.Specialized;
+using System.Text.RegularExpressions;
+
+using Microsoft.Office.Interop.Excel;
+using _excel = Microsoft.Office.Interop.Excel;
 
 namespace Opcoder
 {
@@ -38,8 +42,14 @@ namespace Opcoder
         }
         private static void MessageSent(string connection, long epoch, byte[] message)
         {
-            return;
-            Console.WriteLine($"MessageSent Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            //Console.WriteLine($"MessageSent Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 602 || BitConverter.ToUInt16(message, 18) == 154 || BitConverter.ToUInt16(message, 18) == 144)
+            {
+                Console.WriteLine(BitConverter.ToUInt16(message, 18));
+                Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
+                Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));
+
+            }
             if (BitConverter.ToUInt16(message, 18) == 0x3A1)
             {
                 return;
@@ -60,8 +70,58 @@ namespace Opcoder
         {
             // Process Data
             // Console.WriteLine($"MessageReceived Opcode:{BitConverter.ToUInt16(message, 18)} Length:{message.Length}");
+            if (BitConverter.ToUInt16(message, 18) == 0x2FD)
+            {
+                /*
+                Console.WriteLine("Loading Housing Info");
+                Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
+                Console.WriteLine(BitConverter.ToString(message[32..]).Replace("-", " "));*/
+                string area = "";
+                var data = message[32..];
+                if (data[4] == 0x53)
+                {
+                    area = "海雾村";
+                }
+                else if (data[4] == 0x54)
+                {
+                    area = "薰衣草苗圃";
+                }
+                else if (data[4] == 0x55)
+                {
+                    area = "高脚孤丘";
+                }
+                else if (data[4] == 0x81)
+                {
+                    area = "白银乡";
+                }
+                bool is_open = (data[20] == 1);
+                string size = (data[21] == 2) ? "L" : ((data[21] == 1) ? "M" : "S");
+                string house_name = Encoding.UTF8.GetString(data[23..46]);
+                string house_desc = Encoding.UTF8.GetString(data[46..239]);
+                string owner_name = Encoding.UTF8.GetString(data[239..270]);
+                string owner_nick = Encoding.UTF8.GetString(data[270..277]);
+                if (house_name.IndexOf('\0') != -1) house_name = house_name.Substring(0, house_name.IndexOf('\0'));
+                if (house_desc.IndexOf('\0') != -1) house_desc = house_desc.Substring(0, house_desc.IndexOf('\0'));
+                if (owner_name.IndexOf('\0') != -1) owner_name = owner_name.Substring(0, owner_name.IndexOf('\0'));
+                if (owner_nick.IndexOf('\0') != -1) owner_nick = owner_nick.Substring(0, owner_nick.IndexOf('\0'));
+                var appeaal_0 = lumina.GetExcelSheet<HousingAppeal>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)data[277]);
+                var appeaal_1 = lumina.GetExcelSheet<HousingAppeal>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)data[278]);
+                var appeaal_2 = lumina.GetExcelSheet<HousingAppeal>(Lumina.Data.Language.ChineseSimplified).GetRow((uint)data[279]);
+                if (is_open && (house_desc.IndexOf("欢迎光临") != -1 || appeaal_0.RowId == 21 || appeaal_1.RowId == 21 || appeaal_2.RowId == 21))
+                {
+                    house_desc = house_desc.Replace("\r", " ");
+                    if (house_desc.IndexOf(",") != -1)
+                    {
+                        house_desc = "\"" + house_desc + "\"";
+                    }
+                    Console.WriteLine($"{area},{data[2]+1},{data[0]+1},{house_name},{size},{house_desc},{appeaal_0.Tag},{appeaal_1.Tag},{appeaal_2.Tag},{owner_name},{owner_nick}");
+                }
+
+
+            }
             if (BitConverter.ToUInt16(message, 18) == 0x22B)
             {
+                return;
                 //Console.WriteLine("Loading Housing List");
                 //Console.WriteLine(BitConverter.ToString(message[0..32]).Replace("-", " "));
                 var data_list = message[32..];
@@ -131,7 +191,6 @@ namespace Opcoder
                         }
 
                     }
-                    /*
                     var name = Encoding.UTF8.GetString(name_array);
                     string appeal_string = "";
                     foreach (var appeal_id in name_header[5..])
@@ -146,8 +205,7 @@ namespace Opcoder
                         name = "《" + name + "》";
                     }
                     string open = is_open ? "开放" : "关闭";
-                    Console.WriteLine($"{name}\t{size}\t{open}\t{appeal_string}");
-                    */
+                    Console.WriteLine($"{name}\t{size}\t{open}\t{appeal_string}\t{BitConverter.ToString(name_header[4..5])}");
                 }
             }
             if (BitConverter.ToUInt16(message, 18) == 0x353)
